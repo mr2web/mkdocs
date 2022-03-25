@@ -308,6 +308,12 @@ the root of your local file system.
     If you're using another source code control tool, you'll want to check its
     documentation on how to ignore specific directories.
 
+### serve_from_tmp_dir
+
+Running `mkdocs serve` when this parameter is set to `True`, mkdocs will build and serve the generated HTML pages from a temporary directory that will be removed when stopped served. If this parameter is set to `False`, mkdocs will build and serve the generated HTML pages from the `site_dir` specified directory. Please note that this directory will not be removed when stopped served.
+
+**default**: `True`
+
 ### extra_css
 
 Set a list of CSS files in your `docs_dir` to be included by the theme. For

@@ -121,5 +121,8 @@ def get_schema():
         ('plugins', config_options.Plugins(default=['search'])),
 
         # a list of extra paths to watch while running `mkdocs serve`
-        ('watch', config_options.ListOfPaths(default=[]))
+        ('watch', config_options.ListOfPaths(default=[])),
+
+        # True builds and serves a temporary dir and False builds and serves the site_dir.
+        ('serve_from_tmp_dir', config_options.Type(bool, default=True))
     )

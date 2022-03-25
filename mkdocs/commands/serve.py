@@ -21,11 +21,7 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
     it will rebuild the documentation and refresh the page automatically
     whenever a file is edited.
     """
-
-    # Create a temporary build directory, and set some options to serve it
-    # PY2 returns a byte string by default. The Unicode prefix ensures a Unicode
-    # string is returned. And it makes MkDocs temp dirs easier to identify.
-    site_dir = tempfile.mkdtemp(prefix='mkdocs_')
+    
 
     def mount_path(config):
         return urlsplit(config['site_url'] or '/').path
@@ -38,7 +34,6 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
             strict=strict,
             theme=theme,
             theme_dir=theme_dir,
-            site_dir=site_dir,
             **kwargs
         )
 
@@ -53,13 +48,26 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
 
         live_server = livereload in ['dirty', 'livereload']
         dirty = livereload == 'dirty'
+        
+        if config['serve_from_tmp_dir'] is True:
+            # Create a temporary build directory, and set some options to serve it
+            # PY2 returns a byte string by default. The Unicode prefix ensures a Unicode
+            # string is returned. And it makes MkDocs temp dirs easier to identify.
+            config['site_dir'] = tempfile.mkdtemp(prefix='mkdocs_')
+
+        
         build(config, live_server=live_server, dirty=dirty)
         return config
 
     try:
         # Perform the initial build
         config = builder()
-
+        
+        site_dir = config['site_dir']
+        if config['serve_from_tmp_dir'] is True:
+            log.info("Site temporarily built and served at: " + site_dir)
+        else:
+            log.info("Site built and served at: " + site_dir)
         host, port = config['dev_addr']
         server = LiveReloadServer(builder=builder, host=host, port=port, root=site_dir, mount_path=mount_path(config))
 
@@ -97,5 +105,8 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
         # Avoid ugly, unhelpful traceback
         raise Abort(str(e))
     finally:
-        if isdir(site_dir):
-            shutil.rmtree(site_dir)
+        
+        if config['serve_from_tmp_dir'] is True:
+            site_dir = config['site_dir']
+            if isdir(site_dir):
+                shutil.rmtree(site_dir)
