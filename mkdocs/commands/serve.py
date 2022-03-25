@@ -21,7 +21,7 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
     it will rebuild the documentation and refresh the page automatically
     whenever a file is edited.
     """
-    
+    config = None
 
     def mount_path(config):
         return urlsplit(config['site_url'] or '/').path
@@ -106,7 +106,7 @@ def serve(config_file=None, dev_addr=None, strict=None, theme=None,
         raise Abort(str(e))
     finally:
         
-        if config['serve_from_tmp_dir'] is True:
+        if config is not None and config['serve_from_tmp_dir'] is True:
             site_dir = config['site_dir']
             if isdir(site_dir):
                 shutil.rmtree(site_dir)
